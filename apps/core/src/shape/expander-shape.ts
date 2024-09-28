@@ -4,12 +4,17 @@ import { isMobile } from '../helper';
 import type { RaphaelPaper, RaphaelAxisAlignedBoundingBox, RaphaelSet, RaphaelElement } from 'raphael';
 import type { EventNames, EventArgs } from './common/shape-event-emitter';
 
+// 展开按钮的圆圈半径
 const circleRadius = isMobile ? 7 : 5;
+// 展开按钮的操作图标宽度
 const operationWidth = circleRadius * 0.6;
+// 展开按钮的位置偏移量
 const circlePositionOffset = isMobile ? 3 : 2;
 
+// 展开按钮的宽度
 export const expanderBoxWidth = circleRadius * 2 + circlePositionOffset + 3;
 
+// 展开按钮形状类
 class ExpanderShape {
   private readonly paper: RaphaelPaper;
   private readonly circleShape: RaphaelElement;
@@ -33,8 +38,10 @@ class ExpanderShape {
     this.isExpand = isExpand;
     this.shapeSet = paper.set();
 
+    // 根据节点方向计算展开按钮的位置
     const { x, y } = this.getPosition(nodeBBox, direction);
 
+    // 创建展开按钮的圆圈
     this.circleShape = paper.circle(x, y, circleRadius);
     this.circleShape.attr({
       'fill': '#fff',
@@ -44,6 +51,7 @@ class ExpanderShape {
     // @ts-ignore
     this.circleShape.node.style['cursor'] = 'pointer';
 
+    // 创建展开按钮的横竖线
     const {
       cx: circleCx,
       cy: circleCy,
@@ -58,29 +66,35 @@ class ExpanderShape {
       `M${circleCx} ${circleCy - operationWidth}`,
       `L${circleCx} ${circleCy + operationWidth}`,
     ].join(' '));
-    
 
+    // 将圆圈、横线和竖线添加到形状集合中
     this.shapeSet.push(this.circleShape).push(this.horizontalShape).push(this.verticalShape);
 
+    // 如果节点处于展开状态,则隐藏竖线
     if (isExpand) {
       this.verticalShape.hide();
     }
 
+    // 设置形状的样式
     this.shapeSet.attr({
       'stroke': '#000',
       'stroke-opacity': 0.7,
     });
     this.shapeSet.toFront();
 
+    // 创建形状事件发射器
     this.shapeEventEmitter = new ShapeEventEmitter(this.shapeSet);
 
+    // 初始化鼠标悬浮事件
     this.initHover();
   }
 
+  // 添加事件监听器
   public on<T extends EventNames>(eventName: EventNames, ...args: EventArgs<T>): void {
     this.shapeEventEmitter.on(eventName, ...args);
   }
 
+  // 改变展开状态
   public changeExpand(newIsExpand: boolean): void {
     if (this.isExpand === newIsExpand) return;
 
@@ -93,6 +107,7 @@ class ExpanderShape {
     this.isExpand = newIsExpand;
   }
 
+  // 移动展开按钮到指定位置
   public translateTo(nodeBBox: RaphaelAxisAlignedBoundingBox, direction: Direction) {
     const { x, y } = this.getPosition(nodeBBox, direction);
 
@@ -111,15 +126,18 @@ class ExpanderShape {
     this.shapeSet.translate(dx, dy);
   }
 
+  // 获取展开按钮的边界框
   public getBBox(): RaphaelAxisAlignedBoundingBox {
     return this.circleShape.getBBox();
   }
 
+  // 删除展开按钮
   public remove(): void {
     this.shapeSet.remove();
     this.shapeEventEmitter.removeAllListeners();
   }
 
+  // 设置展开按钮的样式
   public setStyle(styleType: 'disable' | 'base' | 'hover'): void {
     switch(styleType) {
       case 'disable': {
@@ -151,6 +169,7 @@ class ExpanderShape {
     }
   }
 
+  // 根据节点方向计算展开按钮的位置
   private getPosition(nodeBBox: RaphaelAxisAlignedBoundingBox, direction: Direction): {
     x: number;
     y: number;
@@ -169,6 +188,7 @@ class ExpanderShape {
     };
   }
 
+  // 初始化鼠标悬浮事件
   private initHover(): void {
     this.shapeEventEmitter.on('hover', () => {
       this.setStyle('hover');

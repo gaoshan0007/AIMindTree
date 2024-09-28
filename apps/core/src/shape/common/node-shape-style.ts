@@ -1,11 +1,13 @@
 import { RaphaelSet, RaphaelElement, RaphaelAttributes } from 'raphael';
 
+// 标签默认样式
 const labelDefaultAttr: Partial<RaphaelAttributes> = {
   'font-size': 16,
   'fill': '#000',
   'opacity': 1,
 };
 
+// 矩形默认样式
 const rectDefaultAttr: Partial<RaphaelAttributes> = {
   'fill-opacity': 0,
   'stroke': '#808080',
@@ -13,6 +15,7 @@ const rectDefaultAttr: Partial<RaphaelAttributes> = {
   'opacity': 1,
 };
 
+// 边框默认样式
 const borderDefaultAttr: Partial<RaphaelAttributes> = {
   'stroke': '#fff',
   'stroke-width': 2,
@@ -21,8 +24,10 @@ const borderDefaultAttr: Partial<RaphaelAttributes> = {
   'opacity': 0,
 };
 
+// 节点形状样式类型
 export type StyleType = 'select' | 'overlay' | 'disable' | 'base' | 'hover';
 
+// 节点形状样式管理器
 class NodeShapeStyle {
   private readonly shapeSet: RaphaelSet;
   private readonly borderShape: RaphaelElement;
@@ -59,12 +64,14 @@ class NodeShapeStyle {
     this.borderBaseAttr = { ...borderDefaultAttr, ...borderBaseAttr, };
   }
 
+  // 设置基础样式
   public setBaseStyle(): void {
     this.labelShape.attr(this.labelBaseAttr);
     this.borderShape.attr(this.borderBaseAttr);
     this.rectShape.attr(this.rectBaseAttr);
   }
 
+  // 设置节点形状样式
   public setStyle(styleType: StyleType): void {
     switch (styleType) {
       case 'select': {
@@ -107,10 +114,12 @@ class NodeShapeStyle {
     this.styleType = styleType;
   }
 
+  // 获取当前样式类型
   public getStyle(): StyleType {
     return this.styleType;
   }
 
+  // 获取基础样式属性
   public getBaseAttr(): {
     labelBaseAttr: Partial<RaphaelAttributes>;
     borderBaseAttr: Partial<RaphaelAttributes>;

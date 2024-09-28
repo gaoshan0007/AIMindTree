@@ -1,4 +1,3 @@
-
 import Node from './node';
 import NodeShape from '../shape/node-shape';
 import { createFirstNodeShape } from '../shape/first-node-shape';
@@ -11,9 +10,10 @@ import { Direction } from '../types';
 import type { RaphaelPaper } from 'raphael';
 import type { ImageData } from '../types';
 
+// 边的形状类型
 export type EdgeShape = FirstEdgeShape | GrandchildEdgeShape;
 
-// generate Node and Edge for rendering
+// 生成节点和边的类
 class ShapeGenerator {
   private readonly paper: RaphaelPaper;
   private readonly depth: number;
@@ -48,6 +48,7 @@ class ShapeGenerator {
     this.link = link || '';
   }
 
+  // 创建节点
   public createNode(x?: number, y?: number): NodeShape {
     const {
       paper,
@@ -66,6 +67,7 @@ class ShapeGenerator {
       link,
     };
 
+    // 根据节点深度类型创建不同的节点形状
     const depthType = getDepthType(depth);
     if (depthType === DepthType.root) {
       return createRootNodeShape(nodeOptions);
@@ -76,6 +78,7 @@ class ShapeGenerator {
     }
   }
 
+  // 创建边
   public createEdge(nodeShape: NodeShape): EdgeShape | null {
     const {
       father,
@@ -83,12 +86,14 @@ class ShapeGenerator {
       depth,
     } = this;
 
+    // 如果没有父节点或方向,则不创建边
     if (!father || !direction) {
       return null;
     }
 
     const depthType = getDepthType(depth);
 
+    // 根据节点深度类型创建不同的边形状
     if (depthType === DepthType.firstLevel) {
       return createFirstEdgeShape({
         paper: this.paper,
@@ -110,6 +115,7 @@ class ShapeGenerator {
     return null;
   }
 
+  // 改变节点方向
   public changeDirection(direction: Direction) {
     this.direction = direction;
   }

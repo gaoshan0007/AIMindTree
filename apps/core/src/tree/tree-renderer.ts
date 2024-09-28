@@ -3,6 +3,7 @@ import Position from '../position';
 import type { NodeDataMap } from '../types';
 import type { CreateNodeFunc } from '../node/node-creator';
 
+// 渲染新节点的参数
 interface RenderNewParams {
   nodeDataMap: NodeDataMap;
   sourceId: string;
@@ -10,6 +11,7 @@ interface RenderNewParams {
   father: Node | null;
 }
 
+// 使用相对节点渲染的参数
 interface RenderParams {
   nodeDataMap: NodeDataMap;
   sourceId: string;
@@ -17,6 +19,7 @@ interface RenderParams {
   relativeNode: Node;
 }
 
+// 树渲染器类
 class TreeRenderer {
   private readonly root: Node;
   private readonly position: Position;
@@ -35,6 +38,7 @@ class TreeRenderer {
     this.createNode = createNode;
   }
 
+  // 渲染整个树
   public render(nodeDataMap?: NodeDataMap | null): void {
     if (!nodeDataMap) return;
     this.renderWithRelativeNode({
@@ -46,6 +50,7 @@ class TreeRenderer {
     this.position.reset();
   }
 
+  // 使用相对节点渲染
   renderWithRelativeNode({
     nodeDataMap,
     sourceId,
@@ -55,21 +60,20 @@ class TreeRenderer {
     const currentNode = relativeNode;
     const nodeData = nodeDataMap[sourceId];
 
+    // 更新节点标签、展开状态和方向
     if (nodeData.label !== currentNode.label) {
       currentNode.setLabel(nodeData.label);
     }
-
     if (nodeData.isExpand !== currentNode.isExpand) {
       currentNode.changeExpand(nodeData.isExpand!);
     }
-
     if (nodeData.direction !== currentNode.direction) {
       currentNode.changeDirection(nodeData.direction);
     }
 
+    // 清空当前节点的子节点,并重新渲染
     const oldChildren = currentNode.children;
     currentNode.clearChild();
-
     nodeData.children.forEach((childId) => {
       const childNodeData = nodeDataMap[childId];
       if (!childNodeData) return;
@@ -79,7 +83,6 @@ class TreeRenderer {
       });
 
       let childRelativeNode: Node | null = null;
-
       if (childRelativeNodeIndex > -1) {
         const targetNodeList = oldChildren.splice(childRelativeNodeIndex, 1);
         childRelativeNode = targetNodeList[0];
@@ -102,6 +105,7 @@ class TreeRenderer {
       currentNode.pushChild(childNode);
     });
 
+    // 删除剩余的旧子节点
     oldChildren.forEach((oldChild) => {
       oldChild.remove();
     });
@@ -109,6 +113,7 @@ class TreeRenderer {
     return currentNode;
   }
 
+  // 渲染新节点
   renderNew({
     nodeDataMap,
     sourceId,
@@ -117,6 +122,7 @@ class TreeRenderer {
   }: RenderNewParams): Node {
     const nodeData = nodeDataMap[sourceId];
 
+    // 创建新节点
     const currentNode = this.createNode({
       id: sourceId,
       depth,
@@ -128,6 +134,7 @@ class TreeRenderer {
       link: nodeData.link,
     });
 
+    // 递归渲染子节点
     nodeData.children.forEach((childId) => {
       const childNodeData = nodeDataMap[childId];
       if (!childNodeData) return;

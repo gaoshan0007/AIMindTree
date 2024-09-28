@@ -2,6 +2,7 @@ import { Direction } from '../types';
 import { drawFirstEdge } from './common/draw-edge';
 import type { RaphaelPaper, RaphaelAxisAlignedBoundingBox, RaphaelElement } from 'raphael';
 
+// 一级边形状选项
 interface FirstEdgeShapeOptions {
   paper: RaphaelPaper;
   sourceBBox: RaphaelAxisAlignedBoundingBox;
@@ -9,6 +10,7 @@ interface FirstEdgeShapeOptions {
   direction: Direction;
 }
 
+// 一级边形状类
 export class FirstEdgeShape {
   private readonly shape: RaphaelElement;
   public constructor({
@@ -17,12 +19,14 @@ export class FirstEdgeShape {
     targetBBox,
     direction
   }: FirstEdgeShapeOptions) {
+    // 创建一级边形状
     this.shape = drawFirstEdge({
       paper,
       sourceBBox,
       targetBBox,
       direction
     });
+    // 设置边形状的样式
     this.shape.attr({
       'stroke': '#000',
       'stroke-width': 2,
@@ -30,6 +34,7 @@ export class FirstEdgeShape {
     this.shape.toBack();
   }
 
+  // 设置边形状样式
   public setStyle(styleType: 'disable' | 'base'): void {
     switch(styleType) {
       case 'disable': {
@@ -48,11 +53,13 @@ export class FirstEdgeShape {
     }
   }
 
+  // 删除边形状
   public remove(): void {
     this.shape.remove();
   }
 }
 
+// 创建一级边形状
 export function createFirstEdgeShape(options: FirstEdgeShapeOptions): FirstEdgeShape {
   return new FirstEdgeShape(options);
 }

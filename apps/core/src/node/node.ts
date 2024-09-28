@@ -14,6 +14,7 @@ import type { EventNames as ShapeEventNames, EventArgs as ShapeEventArgs } from 
 import type { StyleType } from '../shape/common/node-shape-style';
 import type { ImageData } from '../types';
 
+// 遍历节点的选项
 export interface TraverseOptions {
   node: Node;
   nodeShape: NodeShape;
@@ -21,8 +22,10 @@ export interface TraverseOptions {
   expander: Expander;
   removeEdgeShape: () => void;
 }
+// 遍历节点的回调函数
 export type TraverseFunc = (node: Node, callback: (options: TraverseOptions) => void) => void;
 
+// 节点事件映射
 export interface NodeEventMap {
   mousedown: ShapeEventArgs<'mousedown'>;
   click: ShapeEventArgs<'click'>;
@@ -33,8 +36,10 @@ export interface NodeEventMap {
   dragEnd: [DragEventMap['dragEnd']];
 };
 
+// 节点事件名称
 export type NodeEventNames = keyof NodeEventMap;
 
+// 节点选项
 export interface NodeOptions {
   paper: RaphaelPaper;
   id: string;
@@ -50,6 +55,7 @@ export interface NodeOptions {
   link?: string;
 }
 
+// 节点类
 class Node {
   private readonly paper: RaphaelPaper;
   private readonly shapeGenerator: ShapeGenerator;
@@ -101,7 +107,7 @@ class Node {
       link,
     });
 
-    // render node & edge
+    // 渲染节点和边
     this.nodeShape = this.shapeGenerator.createNode(x, y);
     if (x !== undefined || y !== undefined) {
       this.edgeShape = this.shapeGenerator.createEdge(this.nodeShape);
@@ -126,6 +132,7 @@ class Node {
     });
   }
 
+  // 获取节点属性
   public get id() { return this._id; }
   public get depth() { return this._depth; }
   public get direction() { return this._direction; }
@@ -136,24 +143,29 @@ class Node {
   public get imageData() { return this._imageData; }
   public get link() { return this._link; }
 
+  // 获取某个方向的子节点
   public getDirectionChildren(direction: Direction): Node[] {
     return this.children?.filter((child) => {
       return child.direction === direction;
     }) || [];
   }
 
+  // 获取节点的边界框
   public getBBox(): RaphaelAxisAlignedBoundingBox {
     return this.nodeShape.getBBox()!;
   }
 
+  // 获取节点标签的边界框
   public getLabelBBox(): RaphaelAxisAlignedBoundingBox {
     return this.nodeShape.getLabelBBox();
   }
 
+  // 获取节点的深度类型
   public getDepthType(): DepthType {
     return getDepthType(this.depth);
   }
 
+  // 获取根节点
   public getRoot(): Node | null {
     let root: Node | null = this;
     while (root && root.getDepthType() !== DepthType.root) {
@@ -162,10 +174,12 @@ class Node {
     return root;
   }
 
+  // 判断是否为根节点
   public isRoot(): boolean {
     return this.getDepthType() === DepthType.root;
   }
 
+  // 添加事件监听器
   public on<T extends NodeEventNames>(eventName: T, ...args: NodeEventMap[T]): void {
     const shapeEventNames: NodeEventNames[] = ['mousedown', 'click', 'dblclick', 'drag', 'touchstart'];
     const expanderEventNames: NodeEventNames[] = ['mousedownExpander'];
@@ -183,24 +197,29 @@ class Node {
     }
   }
 
+  // 清空子节点
   public clearChild(): void {
     this._children = [];
   }
 
+  // 添加子节点
   public pushChild(child: Node): void {
     this.children.push(child);
   }
 
+  // 改变节点的展开状态
   public changeExpand(isExpand: boolean): void {
     if (isExpand === undefined) return;
     this.expander.changeExpand(isExpand);
   }
 
+  // 改变节点的方向
   public changeDirection(direction: Direction): void {
     this._direction = direction;
     this.shapeGenerator.changeDirection(direction);
   }
 
+  // 移动节点到指定位置
   public translateTo(x: number, y: number) {
     this.nodeShape.translateTo(x, y);
 
@@ -211,18 +230,19 @@ class Node {
     this.expander.create();
   }
 
+  // 删除节点
   public remove(): void {
     if (!this.isRoot()) {
       const brothers = this.father?.children;
       if (!brothers) return;
 
-      // Remove the relationship from father node's children
+      // 从父节点的子节点列表中移除
       const index = brothers?.findIndex((brother) => this.id === brother.id);
       if (index > -1) {
         brothers.splice(index, 1);
       }
 
-      // If brothers is empty, then remove the expander of father
+      // 如果兄弟节点为空,则删除父节点的 expander
       if (brothers.length === 0) {
         this.father?.expander.remove();
       }
@@ -237,24 +257,29 @@ class Node {
     });
   }
 
+  // 设置节点标签
   public setLabel(label: string): void {
     this._label = label;
     this.nodeShape.setLabel(label, this.direction);
     this.collaborateShape?.setPosition(this.getBBox());
   }
 
+  // 设置节点样式
   public setStyle(styleType: StyleType): void {
     this.nodeShape.setStyle(styleType);
   }
 
+  // 将节点移到最前面
   public nodeShapeToFront(): void {
     this.nodeShape.toFront();
   }
 
+  // 判断节点是否不可见
   public isInvisible(): boolean {
     return this.nodeShape.isInvisible();
   }
 
+  // 设置协作样式
   public setCollaborateStyle(style: { color: string; name: string; } | null): void {
     if (style) {
       this.collaborateShape = new CollaborateShape({
@@ -268,6 +293,7 @@ class Node {
     }
   }
 
+  // 遍历节点
   private traverse(node: Node, callback: (options: TraverseOptions) => void): void {
     callback({
       node,
@@ -279,6 +305,7 @@ class Node {
     node.children.forEach((child) => this.traverse(child, callback));
   }
 
+  // 删除边
   private removeEdgeShape = (): void => {
     this.edgeShape?.remove();
     this.edgeShape = null;
