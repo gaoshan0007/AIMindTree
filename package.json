@@ -11,6 +11,7 @@
     "dev:server": "turbo run dev --filter=server",
     "build:server": "turbo run build --filter=server"
   },
+  "packageManager": "pnpm@9.11.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RockyRen/mindmaptree.git"

@@ -14,7 +14,7 @@ export const getInitialData = (data?: NodeDataMap): NodeDataMap => {
   const initialData = data || {
     root: {
       children: [],
-      label: 'Central Topic',
+      label: '修改为你感兴趣的主题',
       direction: Direction.NONE,
       isRoot: true,
     },

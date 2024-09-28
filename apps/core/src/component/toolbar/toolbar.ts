@@ -1,3 +1,4 @@
+// 工具栏类，负责管理工具栏的各种功能和交互
 import Selection from '../../selection/selection';
 import DataHandler from '../../data/data-handler';
 import TextEditor from '../../text-editor';
@@ -15,12 +16,19 @@ import Target from './target';
 import { isMobile } from '../../helper';
 
 class Toolbar {
+  // 撤销功能
   private readonly undo: Undo;
+  // 重做功能
   private readonly redo: Redo;
+  // 添加子节点功能
   private readonly addChildNode: AddChild;
+  // 添加兄弟节点功能
   private readonly addBrotherNode: AddBrother;
+  // 编辑功能
   private readonly edit: Edit;
+  // 删除功能
   private readonly delete: Delete;
+  // 定位功能
   private readonly target: Target;
 
   public constructor({
@@ -65,19 +73,19 @@ class Toolbar {
 
     const el = h('div', 'toolbar');
 
-    // render toolbar
+    // 渲染工具栏
     items.forEach((item) => {
       el.setChildren(item);
     });
 
     wrapperDom.appendChild(el.getDom());
 
-    // change toolbar state when select change
+    // 当选择发生变化时更新工具栏状态
     selection.on('select', () => {
       this.setState();
     });
 
-    // change toolbar state when data change
+    // 当数据发生变化时更新工具栏状态
     dataHandler.on('data', () => {
       setTimeout(() => {
         this.setState();
@@ -89,6 +97,7 @@ class Toolbar {
     return h('div', 'toolbar-divider');
   }
 
+  // 更新工具栏各个子组件的状态
   private setState(): void {
     this.undo.setState();
     this.redo.setState();
